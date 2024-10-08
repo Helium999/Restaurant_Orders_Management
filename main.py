@@ -5,8 +5,7 @@ filename = "all_orders.csv"
 fields = ["name", "order", "date_time", "cost", "payment_method"]
 
 def main():
-    i = 1
-    while i == 1:
+    while True:
         action = input("Do you want to log a new order or query an existing order(l/q)?\n"
                        "To exit the program, enter \"e\": ").lower().strip()
 
@@ -43,7 +42,6 @@ def main():
                 if log_confirm == "y" or log_confirm == "yes":
                     log_order(name, order_items, cost, payment_method)
                     print(f"Order of {name} logged successfully!")
-                    i = 0
                     break
 
                 elif log_confirm == "n" or log_confirm == "no":
