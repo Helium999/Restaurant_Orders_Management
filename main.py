@@ -7,25 +7,43 @@ fields = ["name", "order", "date_time", "cost", "payment_method"]
 def main():
     i = 1
     while i == 1:
-        action = input("Do you want to log new order or query an existing order(l/q)?\n"
-                       "To exit the program, enter \"e\": ")
+        action = input("Do you want to log a new order or query an existing order(l/q)?\n"
+                       "To exit the program, enter \"e\": ").lower().strip()
 
         if action == "l" or action == "log":
-            name = input("Enter customer's name: ").strip()
-            order_items = input("Enter the items ordered by the customer(separated by , ): ").split(",")
-            order_items = [item.strip() for item in order_items]
-            cost = input("Enter total cost of the order(in rupees): ").strip()
-            payment_method = input("Enter payment method(Cash/Card/UPI): ")
+            while True :
+                if name := input("Enter customer's name: ").strip():
+                    break
+                else:
+                    print("This field cannot be left empty.")
+
+            while True:
+                order_items = input("Enter the items ordered by the customer(separated by , ): ").split(",")
+                order_items = [item.strip() for item in order_items if item.strip()]
+                if len(order_items) != 0:
+                    break
+                else:
+                    print("This field cannot be left empty.")
+            while True:
+                try:
+                    cost = float(input("Enter total cost of the order(in rupees): ").strip())
+                    break
+                except ValueError:
+                    print("Enter only numbers.")
+            while True:
+                payment_method = input("Enter payment method(Cash/Card/UPI): ").strip()
+                if payment_method.lower() not in ["cash", "card", "upi"]:
+                    print("Invalid payment method.")
+                else:
+                    break
 
             while True:
                 log_confirm = input("Do you want to log the following order(y/n):\n"
-                                    f"Name = {name}, Order = {order_items}, Cost = {cost}, Payment Method = {payment_method}\n")
+                                    f"Name = {name}, Order = {order_items}, Cost = {cost}, Payment Method = {payment_method}\n").lower().strip()
                 if log_confirm == "y" or log_confirm == "yes":
-                    now = datetime.datetime.now()
-                    current_date_time = now.strftime("%d-%m-%Y %H:%M %p")
-                    log_order(name, order_items, current_date_time, cost, payment_method)
+                    log_order(name, order_items, cost, payment_method)
                     print(f"Order of {name} logged successfully!")
-                    i == 0
+                    i = 0
                     break
 
                 elif log_confirm == "n" or log_confirm == "no":
@@ -35,9 +53,10 @@ def main():
                     print("Invalid input! Enter \"y\" to confirm or \"n\" to cancel.")
 
         elif action == "q" or action == "query":
-            query = input("Enter name of customer to get order details: ")
-
-            query_order(query)
+            while True:
+                if query := input("Enter name of customer to get order details: ").lower().strip():
+                    query_order(query)
+                    break
 
         elif action == "e" or action == "exit":
             break
@@ -47,7 +66,9 @@ def main():
 
 
 
-def log_order(name, order_items, current_date_time, cost, payment_method):
+def log_order(name, order_items, cost, payment_method):
+    now = datetime.datetime.now()
+    current_date_time = now.strftime("%d-%b-%Y %I:%M %p")
     order_dict = {"name":name,
                   "order":order_items,
                   "date_time":current_date_time,
@@ -63,7 +84,7 @@ def query_order(query):
         reader = csv.DictReader(csvfile, fieldnames=fields)
         query_number = 0
         for row in reader:
-            if row["name"] == query:
+            if row["name"].lower() == query:
                 print(f"Name: {row['name']}\n"
                 f"Order: {row['order']}\n"
                 f"Date and time: {row['date_time']}\n"
