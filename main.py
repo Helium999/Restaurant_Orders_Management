@@ -6,7 +6,9 @@ fields = ["name", "order", "date_time", "cost", "payment_method"]
 
 def main():
     while True:
-        action = input("Do you want to log a new order or query an existing order(l/q)?\n"
+        action = input("To log a new order, enter \"l\".\n"
+                       "To query an existing order, enter \"q\".\n"
+                       "To view the menu, press \"m\".\n"
                        "To exit the program, enter \"e\": ").lower().strip()
 
         if action == "l" or action == "log":
@@ -56,6 +58,9 @@ def main():
                     query_order(query)
                     break
 
+        elif action == "m" or action == "menu":
+            view_menu()
+
         elif action == "e" or action == "exit":
             break
 
@@ -90,6 +95,13 @@ def query_order(query):
                 f"Payment_method: {row['payment_method']}\n")
                 query_number += 1
         print(f"{query_number} entries found.\n")
+
+def view_menu():
+    with open("menu.csv") as f:
+        reader = csv.DictReader(f, fieldnames=["item", "price"])
+        for row in reader:
+            print(f"{row["item"]} : {row["price"]}")
+        print("\n")
 
 if __name__ == "__main__":
     main()
