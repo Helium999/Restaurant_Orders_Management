@@ -3,7 +3,8 @@ import datetime
 
 records_file = "all_orders.csv"
 menu_file = "menu.csv"
-fields = ["name", "order", "date_time", "cost", "payment_method"]
+fields_records = ["name", "order", "date_time", "cost", "payment_method"]
+fields_menu = ["item", "price"]
 
 def main():
     while True:
@@ -94,12 +95,12 @@ def log_order(name, order_items, cost, payment_method):
                   "payment_method":payment_method
                   }
     with open(records_file, "a", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer = csv.DictWriter(csvfile, fieldnames=fields_records)
         writer.writerow(order_dict)
 
 def query_order(query):
     with open(records_file) as csvfile:
-        reader = csv.DictReader(csvfile, fieldnames=fields)
+        reader = csv.DictReader(csvfile, fieldnames=fields_records)
         query_number = 0
         for row in reader:
             if row["name"].lower() == query:
@@ -113,7 +114,7 @@ def query_order(query):
 
 def view_menu(print_menu=None):
     with open(menu_file) as f:
-        reader = csv.DictReader(f, fieldnames=["item", "price"])
+        reader = csv.DictReader(f, fieldnames=fields_menu)
 
         if print_menu is None:
             print("\n")
