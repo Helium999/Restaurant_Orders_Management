@@ -1,7 +1,8 @@
 import csv
 import datetime
 
-filename = "all_orders.csv"
+records_file = "all_orders.csv"
+menu_file = "menu.csv"
 fields = ["name", "order", "date_time", "cost", "payment_method"]
 
 def main():
@@ -21,16 +22,29 @@ def main():
             while True:
                 order_items = input("Enter the items ordered by the customer(separated by , ): ").split(",")
                 order_items = [item.strip() for item in order_items if item.strip()]
-                if len(order_items) != 0:
-                    break
+                lower_order_items = [item.lower() for item in order_items]
+                lower_menu_list = [item.lower() for item in view_menu("return_var")]
+                intersection_set = set(lower_order_items).intersection(set(lower_menu_list))
+                if len(intersection_set) == len(set(lower_order_items)):
+                    if len(order_items) != 0:
+                        break
+                    else:
+                        print("This field cannot be left empty.")
                 else:
-                    print("This field cannot be left empty.")
+                    not_available = []
+                    for i in lower_order_items:
+                        if i not in lower_menu_list:
+                            not_available.append(i)
+                    print(f"The following item(s) are not available in menu:\n"
+                          f"{not_available}")
+
             while True:
                 try:
                     cost = float(input("Enter total cost of the order(in rupees): ").strip())
                     break
                 except ValueError:
                     print("Enter only numbers.")
+
             while True:
                 payment_method = input("Enter payment method(Cash/Card/UPI): ").strip()
                 if payment_method.lower() not in ["cash", "card", "upi"]:
@@ -43,10 +57,11 @@ def main():
                                     f"Name = {name}, Order = {order_items}, Cost = {cost}, Payment Method = {payment_method}\n").lower().strip()
                 if log_confirm == "y" or log_confirm == "yes":
                     log_order(name, order_items, cost, payment_method)
-                    print(f"Order of {name} logged successfully!")
+                    print(f"Order of '{name}' logged successfully!\n")
                     break
 
                 elif log_confirm == "n" or log_confirm == "no":
+                    print("Cancelled successfully.\n")
                     break
 
                 else:
@@ -65,7 +80,7 @@ def main():
             break
 
         else:
-            print("Wrong Input! Enter \"l\" to log a new order or \"q\" to query an existing order,\nor \"e\" to exit the program.")
+            print("\nWrong Input! Enter \"l\" to log a new order or \"q\" to query an existing order,\nor \"e\" to exit the program.")
 
 
 
@@ -78,12 +93,12 @@ def log_order(name, order_items, cost, payment_method):
                   "cost":cost,
                   "payment_method":payment_method
                   }
-    with open(filename, "a", newline="") as csvfile:
+    with open(records_file, "a", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         writer.writerow(order_dict)
 
 def query_order(query):
-    with open(filename) as csvfile:
+    with open(records_file) as csvfile:
         reader = csv.DictReader(csvfile, fieldnames=fields)
         query_number = 0
         for row in reader:
@@ -96,12 +111,19 @@ def query_order(query):
                 query_number += 1
         print(f"{query_number} entries found.\n")
 
-def view_menu():
-    with open("menu.csv") as f:
+def view_menu(print_menu=None):
+    with open(menu_file) as f:
         reader = csv.DictReader(f, fieldnames=["item", "price"])
-        for row in reader:
-            print(f"{row["item"]} : {row["price"]}")
-        print("\n")
+
+        if print_menu is None:
+            print("\n")
+            for row in reader:
+                print(f"{row["item"]} : {row["price"]}")
+            print("\n")
+
+        elif print_menu == "return_var":
+            menu_items = [row["item"] for row in reader if row["item"] != "item"]
+            return menu_items
 
 if __name__ == "__main__":
     main()
