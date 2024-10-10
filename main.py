@@ -21,10 +21,11 @@ def main():
                     print("This field cannot be left empty.")
 
             while True:
+                menu_items = [i["item"] for i in view_menu() if i["item"] != "item"]
                 order_items = input("Enter the items ordered by the customer(separated by , ): ").split(",")
                 order_items = [item.strip() for item in order_items if item.strip()]
                 lower_order_items = [item.lower() for item in order_items]
-                lower_menu_list = [item.lower() for item in view_menu("return_var")]
+                lower_menu_list = [item.lower() for item in menu_items]
                 intersection_set = set(lower_order_items).intersection(set(lower_menu_list))
                 if len(intersection_set) == len(set(lower_order_items)):
                     if len(order_items) != 0:
@@ -75,7 +76,10 @@ def main():
                     break
 
         elif action == "m" or action == "menu":
-            view_menu()
+            print("\n")
+            for i in view_menu():
+                print(f"{i["item"]} : {i["price"]}")
+            print("\n")
 
         elif action == "e" or action == "exit":
             break
@@ -112,19 +116,12 @@ def query_order(query):
                 query_number += 1
         print(f"{query_number} entries found.\n")
 
-def view_menu(print_menu=None):
+def view_menu():
     with open(menu_file) as f:
         reader = csv.DictReader(f, fieldnames=fields_menu)
 
-        if print_menu is None:
-            print("\n")
-            for row in reader:
-                print(f"{row["item"]} : {row["price"]}")
-            print("\n")
-
-        elif print_menu == "return_var":
-            menu_items = [row["item"] for row in reader if row["item"] != "item"]
-            return menu_items
+        menu = [row for row in reader]
+    return menu
 
 if __name__ == "__main__":
     main()
