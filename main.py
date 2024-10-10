@@ -10,6 +10,7 @@ def main():
     while True:
         action = input("To log a new order, enter \"l\".\n"
                        "To query an existing order, enter \"q\".\n"
+                       "To remove an existing log, enter \"r\".\n"
                        "To view the menu, press \"m\".\n"
                        "To exit the program, enter \"e\": ").lower().strip()
 
@@ -66,19 +67,21 @@ def main():
         elif action == "q" or action == "query":
             while True:
                 if query := input("Enter name of customer to get order details: ").lower().strip():
-                    query_number = 0
-
-                    for i in view_records():
-                        if i["name"].lower() == query:
-                            print(f"Name: {i['name']}\n"
-                                  f"Order: {i['order']}\n"
-                                  f"Date and time: {i['date_time']}\n"
-                                  f"Cost: {i['cost']} rupees\n"
-                                  f"Payment_method: {i['payment_method']}\n")
-                            query_number += 1
-
-                    print(f"{query_number} entries found.\n")
+                    query_order(query)
                     break
+
+        elif action == "r" or action == "remove":
+            while True:
+                if q_name := input("\nInput the name of the customer to remove log.\n"
+                                   "Enter \"all\" if you want to clear all the logs from records\n").strip():
+                    if q_name.lower() in [i["name"].lower() for i in view_records()] or q_name.lower() == "all":
+                        remove_log(q_name)
+                        print("Log removed successfully!\n")
+                        break
+                    else:
+                        print("No log found with the entered name")
+                else:
+                    print("This field cannot be left empty.")
 
         elif action == "m" or action == "menu":
             print("\n")
@@ -107,6 +110,20 @@ def log_order(name, order_items, order_cost, payment_method):
         writer = csv.DictWriter(csvfile, fieldnames=fields_records)
         writer.writerow(order_dict)
 
+def query_order(query):
+    query_number = 0
+
+    for i in view_records():
+        if i["name"].lower() == query:
+            print(f"Name: {i['name']}\n"
+                  f"Order: {i['order']}\n"
+                  f"Date and time: {i['date_time']}\n"
+                  f"Cost: {i['cost']} rupees\n"
+                  f"Payment_method: {i['payment_method']}\n")
+            query_number += 1
+
+    print(f"{query_number} entries found.\n")
+
 def view_records():
     with open(records_file) as csvfile:
         reader = csv.DictReader(csvfile, fieldnames=fields_records)
@@ -129,6 +146,17 @@ def calc_cost(order_items):
                 total_cost += float(j["price"])
 
     return total_cost
+
+def remove_log(q_name):
+    if q_name == "all":
+        rows_keep = [row for row in view_records() if row["name"].lower() == "name"]
+    else:
+        rows_keep = [row for row in view_records() if row["name"].lower() != q_name.lower()]
+
+    with open(records_file, "w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields_records)
+        for row in rows_keep:
+            writer.writerow(row)
 
 if __name__ == "__main__":
     main()
