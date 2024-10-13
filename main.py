@@ -74,9 +74,28 @@ def main():
             while True:
                 if q_name := input("\nInput the name of the customer to remove log.\n"
                                    "Enter \"all\" if you want to clear all the logs from records\n").strip():
-                    if q_name.lower() in [i["name"].lower() for i in view_records()] or q_name.lower() == "all":
-                        remove_log(q_name)
+                    if q_name.lower() in [i["name"].lower() for i in view_records()]:
+                        q_order_list = [j for j in view_records() if j["name"].lower() == q_name.lower()]
+                        q_order_dict = dict(enumerate(q_order_list, 1))
+                        for o in q_order_dict:
+                            val = q_order_dict.get(o)
+                            print(f"Index no. {str(o)} : Name = {val["name"]}, Order = {val["order"]}, "
+                                  f"Date and Time = {val["date_time"]}, Cost = {val["cost"]}, Payment Method = {val["payment_method"]}")
+                        while True:
+                            try:
+                                q_select = int(input("Select which order to remove by entering the index number from the list above: ").strip())
+                                if q_select in q_order_dict:
+                                    remove_log(q_order_dict.get(q_select))
+                                    break
+                                else:
+                                    print("The serial no. you entered does not match.")
+                            except ValueError:
+                                print("Enter whole numbers only")
                         print("Log removed successfully!\n")
+                        break
+                    elif q_name == "all":
+                        remove_log("all")
+                        print("Successfully removed all logs!")
                         break
                     else:
                         print("No log found with the entered name")
@@ -151,7 +170,7 @@ def remove_log(q_name):
     if q_name == "all":
         rows_keep = [row for row in view_records() if row["name"].lower() == "name"]
     else:
-        rows_keep = [row for row in view_records() if row["name"].lower() != q_name.lower()]
+        rows_keep = [row for row in view_records() if row != q_name]
 
     with open(records_file, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields_records)
